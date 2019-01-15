@@ -31,25 +31,31 @@ class Solution(object):
         :rtype: List[str]
         """
         trie = Trie()
+        node = trie.root
+        res = []
+        for word in words:
+            trie.insert(word)
+
         for i in range(len(board)):
             for j in range(len(board[0])):
-                self.dfs(board, i, j, trie, "")
+                self.dfs(board, i, j, node, "", res)
+        return res
 
-        res = set()
-        for word in words:
-            if trie.search(word):
-                res.add(word)
-        return list(res)
-
-    def dfs(self, board, i, j, trie, cur):
+    def dfs(self, board, i, j, node, path, res):
+        if node.isWord:
+            res.append(path)
+            node.isWord = False
         if i < 0 or i >= len(board) or j < 0 or j >= len(board[0]) or board[i][j] == '#':
-            return False
-        temp = board[i][j]
+            return
+        tmp = board[i][j]
+        node = node.children.get(tmp)
+        if not node:
+            return
         board[i][j] = '#'
-        cur += temp
-        res = self.dfs(board, i - 1, j, trie, cur) or self.dfs(board, i + 1, j, trie, cur)\
-            or self.dfs(board, i, j - 1, trie, cur) or self.dfs(board, i, j + 1, trie, cur)
-        board[i][j] = temp
-        if res == False:
-            trie.insert(cur)
-        return False
+        self.dfs(board, i - 1, j, node, path + tmp, res)
+        self.dfs(board, i + 1, j, node, path + tmp, res)
+        self.dfs(board, i, j - 1, node, path + tmp, res)
+        self.dfs(board, i, j + 1, node, path + tmp, res)
+        board[i][j] = tmp
+
+
